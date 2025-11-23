@@ -6,7 +6,6 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  # ⚠️ REMPLACEZ BIEN CECI PAR VOTRE NOM EN MINUSCULES COMME AVANT
   IMAGE_NAME: le0nard-sacha/ue19-lab-05
 
 jobs:
