@@ -1,4 +1,4 @@
-name: Build and Publish Docker Image
+name: Build, Scan and Publish Docker Image
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  
+  # ⚠️ REMPLACEZ BIEN CECI PAR VOTRE NOM EN MINUSCULES COMME AVANT
   IMAGE_NAME: le0nard-sacha/ue19-lab-05
 
 jobs:
@@ -15,6 +15,7 @@ jobs:
     permissions:
       contents: read
       packages: write
+      security-events: write # Permet à Trivy d'écrire des rapports si besoin
 
     steps:
       - name: Checkout repository
@@ -36,6 +37,29 @@ jobs:
             type=raw,value=latest
             type=sha
 
+      # ÉTAPE 1 : On construit l'image mais on NE LA POUSSE PAS (load: true)
+      # On lui donne un tag temporaire ":scantest" pour que Trivy la trouve
+      - name: Build Docker image for scanning
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          load: true
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:scantest
+          push: false
+
+      # ÉTAPE 2 : On lance le scan de vulnérabilités TRIVY
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@0.19.0
+        with:
+          image-ref: '${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:scantest'
+          format: 'table'
+          exit-code: '0' # On met 0 pour ne pas bloquer l'exercice même s'il y a des failles
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
+
+      # ÉTAPE 3 : Si tout va bien, on pousse l'image pour de vrai
+      # Docker utilisera le cache de l'étape 1, donc ce sera très rapide
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
