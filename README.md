@@ -30,5 +30,12 @@ Avant de commencer, assurez-vous d'avoir installé Python 3 sur votre machine.
 
 1. **Cloner le projet** (ou télécharger le fichier `.py`) :
    ```bash
+## 🐳 Utilisation avec Docker (Optionnelle)
+
+Si vous avez Docker installé, pas besoin d'installer Python ou les dépendances manuellement.
+
+**1. Construire l'image :**
+```bash
+docker build -t oracle-ages .
    git clone [https://github.com/votre-utilisateur/oracle-des-ages.git](https://github.com/votre-utilisateur/oracle-des-ages.git)
    cd oracle-des-ages
